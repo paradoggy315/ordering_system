@@ -1,17 +1,18 @@
 import { FoodItem, cartItem } from "../../types";
 import {
-  firebaseAddToCart,
-  firebaseDeleteCartItem,
-  firebaseDeleteFood,
-  firebaseEmptyUserCart,
-  firebaseFetchAllCartItems,
-  firebaseFetchFoodItems,
-  firebaseGetAllUsers,
-  firebaseGetUser,
-  firebaseLogout,
-  firebaseUpdateCartItem,
-  firebaseUpdateUser,
-} from "../Firebase";
+  supabaseAddToCart,
+  supabaseDeleteCartItem,
+  supabaseDeleteFood,
+  supabaseEmptyUserCart,
+  supabaseFetchAllCartItems,
+  supabaseFetchFoodItems,
+  supabaseGetAllUsers,
+  supabaseGetUser,
+  supabaseLogout,
+  supabaseUpdateCartItem,
+  supabaseUpdateUser,
+  supabaseCreateOrder,
+} from "../Supabase";
 
 import { MdShoppingBasket } from "react-icons/md";
 import { toast } from "react-toastify";
@@ -46,10 +47,11 @@ export const addToCart = async (
         cartItems: [...cartItems, data],
       });
       calculateCartTotal(cartItems, foodItems, dispatch);
-      await firebaseAddToCart(data);
+      await supabaseAddToCart(data);
     }
   }
 };
+
 export const dispatchtUserCartItems = (
   uid: string,
   items: cartItem[],
@@ -66,7 +68,7 @@ export const dispatchtUserCartItems = (
 
 export const fetchUserCartData = async (user: any, dispatch: any) => {
   if (user) {
-    await firebaseFetchAllCartItems()
+    await supabaseFetchAllCartItems()
       .then((data) => {
         const userCart = dispatchtUserCartItems(user.uid, data, dispatch);
         localStorage.setItem("cartItems", JSON.stringify(userCart));
@@ -80,8 +82,22 @@ export const fetchUserCartData = async (user: any, dispatch: any) => {
   }
 };
 
+export const fetchCartData = async (dispatch: any) => {
+  await supabaseFetchAllCartItems()
+    .then((data) => {
+      dispatch({
+        type: "SET_CARTITEMS",
+        cartItems: data,
+      });
+      localStorage.setItem("cartItems", JSON.stringify(data));
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
+
 export const fetchFoodData = async (dispatch: any) => {
-  await firebaseFetchFoodItems()
+  await supabaseFetchFoodItems()
     .then((data) => {
       dispatch({
         type: "SET_FOOD_ITEMS",
@@ -94,8 +110,8 @@ export const fetchFoodData = async (dispatch: any) => {
     });
 };
 
-export const getFoodyById = (menu: FoodItem[], fid: number) => {
-  return menu.find((item: FoodItem) => item.id === fid);
+export const getFoodyById = (foods: FoodItem[], id: number) => {
+  return foods?.find((item: FoodItem) => item.id === id);
 };
 
 //  Update cart item State
@@ -114,7 +130,7 @@ export const updateCartItemState = async (
     type: "SET_CARTITEMS",
     cartItems: cartItems,
   });
-  await firebaseUpdateCartItem(item)
+  await supabaseUpdateCartItem(item)
     .then(() => {})
     .catch((e) => {
       console.log(e);
@@ -139,7 +155,7 @@ export const updateCartItemQty = async (
       cartItems: cartItems,
     });
     calculateCartTotal(cartItems, foodItems, dispatch);
-    await firebaseUpdateCartItem(cartItems[index])
+    await supabaseUpdateCartItem(cartItems[index])
       .then(() => {})
       .catch((e) => {
         console.log(e);
@@ -164,7 +180,7 @@ export const deleteCartItem = async (
       cartItems: cartItems,
     });
     calculateCartTotal(cartItems, foodItems, dispatch);
-    await firebaseDeleteCartItem(item)
+    await supabaseDeleteCartItem(item)
       .then(() => {})
       .catch((e) => {
         console.log(e);
@@ -201,7 +217,7 @@ export const emptyCart = async (
       cartItems: [],
     });
     calculateCartTotal(cartItems, foodItems, dispatch);
-    await firebaseEmptyUserCart(cartItems)
+    await supabaseEmptyUserCart(cartItems)
       .then(() => {})
       .catch((e) => {
         console.log(e);
@@ -249,7 +265,7 @@ export const shuffleItems = (items: any) => {
 
 export const logout = async (user: any, dispatch: any, navigate: any) => {
   if (user) {
-    await firebaseLogout()
+    await supabaseLogout()
       .then(() => {
         dispatch({
           type: "SET_USER",
@@ -294,7 +310,7 @@ export const isAdmin = (user: any) => {
 
 // get user
 export const getUserData = async (user: any) => {
-  return await firebaseGetUser(user.uid);
+  return await supabaseGetUser(user.uid);
 };
 
 // update currentUser
@@ -303,7 +319,7 @@ export const updateUserData = async (
   dispatch: any,
   alert: boolean
 ) => {
-  await firebaseUpdateUser(user)
+  await supabaseUpdateUser(user)
     .then(() => {
       dispatch({
         type: "SET_USER",
@@ -321,7 +337,7 @@ export const updateUserData = async (
 
 // get all users
 export const dispatchUsers = async (dispatch: any) => {
-  await firebaseGetAllUsers()
+  await supabaseGetAllUsers()
     .then((users: any) => {
       dispatch({
         type: "SET_USERS",
@@ -333,7 +349,7 @@ export const dispatchUsers = async (dispatch: any) => {
     }); 
 }
 export const getAllUser = async() => {
-   await firebaseGetAllUsers().then((users: any) => {
+   await supabaseGetAllUsers().then((users: any) => {
     return users
    }).catch((e:any) => {
     console.log(e)
@@ -345,7 +361,7 @@ export const deleteFood = async (
   foodItems: FoodItem[],
   dispatch: any
 ) => {
-  await firebaseDeleteFood(food.id);
+  await supabaseDeleteFood(food.id);
   // remove food from foodItems
   const foodIndex = foodItems.indexOf(food);
   if(foodIndex !== -1)
@@ -357,5 +373,15 @@ export const deleteFood = async (
     foodItems
   })
   toast.success("Food deleted successfully");
+};
+
+// Create order
+export const createOrder = async (
+  user: any,
+  cartItems: cartItem[],
+  total: number,
+  paymentMethod: string
+) => {
+  return await supabaseCreateOrder(user.uid, total, paymentMethod, cartItems);
 };
 

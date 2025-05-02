@@ -12,3 +12,5 @@ export {default as Sidenav} from './Admin/Sidenav';
 export {default as Content} from './Admin/Content';
 export {default as AddFood} from './Admin/AddFood';
 export {default as Stats} from './Admin/Dashboard';
+export {default as Checkout} from './Checkout';
+export {default as ContactForm} from './Contact';

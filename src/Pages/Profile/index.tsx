@@ -11,7 +11,7 @@ import { useState } from "react";
 import { useStateValue } from "../../context/StateProvider";
 import { AssetUploader, Loader } from "../../components";
 import { updateUserData } from "../../utils/functions";
-import { firebaseRemoveUploadedImage } from "../../Firebase";
+import { supabaseRemoveUploadedImage } from "../../Supabase";
 
 
 const UpdateProfile = () => {
@@ -26,7 +26,7 @@ const UpdateProfile = () => {
 
   const deleteImage = async () => {
     setLoadermessage("Removing Photo......");
-    firebaseRemoveUploadedImage(photoURL, setPhotoURL, setLoading);
+    supabaseRemoveUploadedImage(photoURL, setPhotoURL, setLoading);
     const data = { ...user, photoURL: null };
     await updateUserData(data, dispatch, false);
   };

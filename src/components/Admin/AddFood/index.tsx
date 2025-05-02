@@ -8,10 +8,10 @@ import {
   MdOutlineProductionQuantityLimits,
 } from "react-icons/md";
 import {
-  firebaseFetchFoodItems,
-  firebaseRemoveUploadedImage,
-  firebaseSaveProduct,
-} from "../../../Firebase";
+  supabaseFetchFoodItems,
+  supabaseRemoveUploadedImage,
+  supabaseSaveProduct,
+} from "../../../Supabase";
 
 import { Categories } from "../../../utils/categories";
 import CategoriesSelector from "./CategoriesSelector";
@@ -36,7 +36,7 @@ const AddFood = () => {
 
   const deleteImage = () => {
     setLoadermessage("Removing Photo......");
-    firebaseRemoveUploadedImage(image, setImage, setLoading);
+    supabaseRemoveUploadedImage(image, setImage, setLoading);
   };
   const saveItem = () => {
     setLoadermessage(`Saving Product ${title}.`);
@@ -58,7 +58,7 @@ const AddFood = () => {
           qty: quantity,
         };
         toast
-          .promise(firebaseSaveProduct(data), {
+          .promise(supabaseSaveProduct(data), {
             pending: "Saving Product...",
             success: "Product saved successfully",
             error: "Error saving product, Please try again🤗",

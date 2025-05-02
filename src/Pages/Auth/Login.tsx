@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useStateValue } from "../../context/StateProvider";
-import { EMAILSIGNIN } from "../../Firebase";
+import { EMAILSIGNIN } from "../../Supabase";
 
 const Login = () => {
   const navigate = useNavigate();

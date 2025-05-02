@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import ProviderAuth, { ImageBox } from ".";
 import { toast } from "react-toastify";
@@ -6,7 +5,7 @@ import { toast } from "react-toastify";
 // import { motion } from "framer-motion";
 import { useState } from "react";
 import { useStateValue } from "../../context/StateProvider";
-import { EMAILSIGNUP, firebaseAddUser } from "../../Firebase";
+import { EMAILSIGNUP, supabaseAddUser } from "../../Supabase";
 
 // toast.configure()
 
@@ -26,18 +25,27 @@ const Login = () => {
             success: "Signup successful: WELCOME!",
             error: "Error Creating account, Please try again🤗",
           }
-        ).then((userCredential) => {
+        ).then((data) => {
           // Signed in
-          const user = userCredential.user.providerData[0];
-          firebaseAddUser(user);
-          dispatch({
-            type: "SET_USER",
-            user: user,
-          });
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/");
-        }
-        ).catch((error) => {
+          if (data && data.user) {
+            const user = {
+              uid: data.user.id,
+              email: data.user.email,
+              displayName: email.split('@')[0],
+              providerId: 'password'
+            };
+            
+            supabaseAddUser(user);
+            dispatch({
+              type: "SET_USER",
+              user: user,
+            });
+            localStorage.setItem("user", JSON.stringify(user));
+            navigate("/");
+          } else {
+            toast.error("Error creating account, missing user data");
+          }
+        }).catch((error) => {
           // const errorCode = error.code;
           const errorMessage = error.message;
           toast.error(errorMessage, { autoClose: 15000 });

@@ -1,4 +1,4 @@
-import { firebaseGetAllUsers } from "../Firebase";
+import { supabaseGetAllUsers } from "../Supabase";
 
 export const fetchSessionUser = () => {
   const user =

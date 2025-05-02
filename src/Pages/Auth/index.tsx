@@ -1,10 +1,6 @@
 import "react-toastify/dist/ReactToastify.css";
 
 import { Cheff1 } from "../../components/Assets";
-import {
-  // GithubAuthProvider,
-  GoogleAuthProvider,
-} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
@@ -12,57 +8,32 @@ import { BsGithub } from "react-icons/bs";
 
 import { motion } from "framer-motion";
 import { useStateValue } from "../../context/StateProvider";
-import { AUTHPROVIDER } from "../../Firebase";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { fetchUserCartData } from "../../utils/functions";
 
 const ProviderAuth = () => {
-  const GOOGLE_PROVIDER = new GoogleAuthProvider();
-  // const GITHUB_PROVIDER = new GithubAuthProvider();
   const [{ user }, dispatch] = useStateValue();
   const navigate = useNavigate();
 
-  const AUTH = async ({ provider }: { provider: any }) => {
+  const AUTH = async ({ provider }: { provider: string }) => {
     if (!user) {
-      toast
-        .promise(AUTHPROVIDER(provider), {
-          pending: "Signing in...",
-          success: "Signin successful",
-          error: "Error Signing in, Please try again🤗",
-        })
-        .then(({ refreshToken, userData }) => {
-          // Signed in
-          const user = userData[0];
-          // const userData = getUserData(user);
-          dispatch({
-            type: "SET_USER",
-            user: user,
-          });
-          fetchUserCartData(user, dispatch);
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/");
-        })
-        .catch((error) => {
-          // const errorCode = error.code;
-          const errorMessage = error.message;
-          toast.error(errorMessage, { autoClose: 15000 });
-        });
+      toast.warn(`${provider} authentication is not available yet`, {
+        autoClose: 2000,
+        icon: (
+          <MdOutlineNotificationsActive className="text-yellow-500 text-xl" />
+        ),
+        toastId: provider,
+      });
+      // 注意：Supabase OAuth流程将在实际项目中实现
     }
   };
+  
   return (
     <div className="flex items-center justify-center gap-5  text-center">
       <motion.p
         whileHover={{ scale: 1.1 }}
         className="flex items-center w-36 h-10 bg-white justify-center rounded text-headingColor px-5 cursor-pointer shadow-sm hover:bg-slate-100"
-        onClick={() =>
-          toast.warn("GitHub Signin is not available yet", {
-            autoClose: 2000,
-            icon: (
-              <MdOutlineNotificationsActive className="text-yellow-500 text-xl" />
-            ),
-            toastId: "github",
-          })
-        }
+        onClick={() => AUTH({ provider: "github" })}
       >
         <BsGithub className="text-xl w-5 mr-1" />
         <span>Github</span>
@@ -70,7 +41,7 @@ const ProviderAuth = () => {
       <motion.p
         whileHover={{ scale: 1.1 }}
         className="flex items-center w-36 h-10 bg-white justify-center rounded text-headingColor px-5 cursor-pointer shadow-sm hover:bg-slate-100"
-        onClick={() => AUTH({ provider: GOOGLE_PROVIDER })}
+        onClick={() => AUTH({ provider: "google" })}
       >
         <FcGoogle className="text-xl w-5 mr-1" />
         <span>Google</span>

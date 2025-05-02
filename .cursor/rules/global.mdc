@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use complete code blocks.
+- Prioritize solution-oriented replies with code.
+- Avoid generating duplicate logic.
+  - Always check whether similar logic or functionality already exists before writing new code.
+- Maintain consistency in code style and structure.
+- Clearly separate environments: development (dev), testing (test), and production (prod).
+- Review code responsibly.
+  - Only allow code merges after thorough self-review, or confirm the changes are well-understood and directly relevant to the requirements.
+- Use feature flags / toggle modes for unfinished or high-risk features.
+  - Optimize for forward compatibility where possible. If a migration is required, ensure the old logic is removed in sync to avoid redundancy.
+- Avoid hardcoding data directly into the code.
+  - Especially avoid writing one-time scripts into core files (e.g., data initialization scripts).
+- Control the length of a single code block.
+  - If a file or function exceeds 200–300 lines, consider refactoring.
+- Use mock data **only** in development/testing environments.
+  - Mock data is strictly prohibited in production environments.
+- Do **not** generate `.env` or `.xc` files.
+  - Changes must be confirmed and approved before proceeding.

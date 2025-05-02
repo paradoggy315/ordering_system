@@ -1,74 +1,68 @@
+import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import {
-  About,
-  Admin,
-  Home,
-  Login,
-  Menu,
-  Profile,
-  Services,
-  Signup,
-} from "./Pages";
-import { Cart, Footer, Header } from "./components";
-import { Route, Routes } from "react-router-dom";
-import {
-  calculateCartTotal,
-  dispatchUsers,
-  fetchFoodData,
-  fetchUserCartData,
-  isAdmin,
-} from "./utils/functions";
+// Components
+import { Header, Footer, Checkout, ContactForm } from "./components";
 
-import { AnimatePresence } from "framer-motion";
-import Contact from "./components/Contact";
-import { ToastContainer } from "react-toastify";
-import { useEffect } from "react";
+// Pages
+import MainContainer from "./Pages/Home";
+import Menu from "./Pages/Menu";
+import Admin from "./Pages/Admin";
+import Profile from "./Pages/Profile";
+import Services from "./Pages/Services";
+import About from "./Pages/About";
+import Login from "./Pages/Auth/Login";
 import { useStateValue } from "./context/StateProvider";
+import { actionTypes } from "./context/reducer";
+import { fetchCartData, fetchFoodData } from "./utils/functions";
 
 function App() {
-  const [{ showCart,showContactForm, user, foodItems, cartItems, adminMode }, dispatch] =
-    useStateValue();
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [{ showCart, showContactForm }, dispatch] = useStateValue();
+  
   useEffect(() => {
-    fetchFoodData(dispatch);
-    dispatchUsers(dispatch);
-    user && fetchUserCartData(user, dispatch);
-  }, []);
+    setIsLoading(true);
+    fetchFoodData(dispatch).then(() => {
+      fetchCartData(dispatch).then(() => {
+        setIsLoading(false);
+      });
+    });
+  }, [dispatch]);
 
-  useEffect(() => {
-    foodItems &&
-      cartItems.length > 0 &&
-      calculateCartTotal(cartItems, foodItems, dispatch);
-  }, [cartItems, foodItems, dispatch]);
   return (
-    <AnimatePresence exitBeforeEnter>
-      <ToastContainer />
+    <AnimatePresence>
       <div className="w-screen h-auto min-h-[100vh] flex flex-col bg-primary">
-        {showCart && <Cart />}
-        {showContactForm && <Contact />}
-        {!(adminMode && isAdmin(user)) && <Header />}
-        <main
-          className={`${
-            !(adminMode && isAdmin(user)) &&
-            "mt-16 md:mt-16 px-3 md:px-8 md:py-6 py-4"
-          } w-full h-auto`}
-          onClick={() => {}}
-        >
-          {/* Routes */}
+        <Header />
+        <main className="mt-16 md:mt-16 px-3 md:px-8 md:py-4 py-4 w-full h-auto">
           <Routes>
-            <Route path="/*" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Signup />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/*" element={<MainContainer />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
 
-          {!(adminMode && isAdmin(user)) && <Footer />}
+          {showCart && <Checkout handler={() => dispatch({type: 'TOGGLE_CART', showCart: !showCart})} />}
+          {showContactForm && <ContactForm />}
         </main>
+        <Footer />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </div>
     </AnimatePresence>
   );
